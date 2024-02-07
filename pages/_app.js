@@ -16,6 +16,7 @@ import {
 } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
+import { infuraProvider } from "wagmi/providers/infura"; // Добавлено для подключения к Infura
 import MainLayout from "../layout/mainLayout";
 
 const abi = [
@@ -431,6 +432,9 @@ const contractAddress = '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E';
 const alchemyAPIKey = process.env.ALCHEMY_API_KEY;
 const alchemyURL = 'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyAPIKey;
 
+const infuraAPIKey = 'c6f67ed83ef14e6298373339528a7587';
+const infuraURL = 'https://polygon-mainnet.infura.io/v3/' + infuraAPIKey;
+
 const { chains, provider } = configureChains(
     [
         mainnet,
@@ -442,7 +446,11 @@ const { chains, provider } = configureChains(
         arbitrum,
         arbitrumGoerli,
     ],
-    [alchemyProvider({ apiKey: alchemyURL }), publicProvider()]
+    [
+        alchemyProvider({ apiKey: alchemyURL }),
+        publicProvider(),
+        infuraProvider({ projectId: infuraAPIKey }),
+    ]
 );
 
 const { connectors } = getDefaultWallets({
