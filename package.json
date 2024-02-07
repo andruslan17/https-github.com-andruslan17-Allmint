@@ -7,7 +7,8 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
-		"marketplace": "npx create-web3-dapp marketplace"
+		"marketplace": "npx create-web3-dapp marketplace",
+		"fetch-block-number": "node request.js"
 	},
 	"dependencies": {
 		"next": "13.1.2",
