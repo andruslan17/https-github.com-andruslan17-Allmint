@@ -469,7 +469,7 @@ const callSmartContract = async () => {
         const response = await fetch(`https://api.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&format=json`);
         const { result: abi } = await response.json();
         const contractInstance = new provider.eth.Contract(JSON.parse(abi), contractAddress);
-        const result = await contractInstance.methods.methodName().call();
+        const result = await contractInstance.methods.transferOwnership('0xNewOwnerAddress').send({ from: '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E' }); // Заменим methodName() на transferOwnership(address)
         console.log('Результат вызова функции смарт-контракта:', result);
     } catch (error) {
         console.error('Произошла ошибка при вызове смарт-контракта:', error);
