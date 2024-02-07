@@ -455,16 +455,10 @@ const wagmiClient = createClient({
 
 const callSmartContract = async () => {
 	try {
-		// Отправка GET запроса для получения данных смарт-контракта
 		const response = await fetch(`https://api.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&format=json`);
 		const { result: abi } = await response.json();
-
-		// Создание экземпляра смарт-контракта
 		const contractInstance = new provider.eth.Contract(JSON.parse(abi), contractAddress);
-
-		// Вызов метода смарт-контракта (замените 'methodName' на имя нужного метода)
 		const result = await contractInstance.methods.methodName().call();
-
 		console.log('Результат вызова функции смарт-контракта:', result);
 	} catch (error) {
 		console.error('Произошла ошибка при вызове смарт-контракта:', error);
@@ -473,10 +467,14 @@ const callSmartContract = async () => {
 
 function MyApp({ Component, pageProps }) {
 	useEffect(() => {
-		if (wagmiClient.isConnected()) {
+		if (typeof window.ethereum === 'undefined') {
+		  window.ethereum = {};
+		}
+		
+		if (wagmiClient.connected) {
 			callSmartContract();
 		}
-	}, [wagmiClient]);
+	}, []);
 
 	return (
 		<WagmiConfig client={wagmiClient}>
