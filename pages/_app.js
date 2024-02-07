@@ -1,3 +1,5 @@
+import { useEffect } from 'react'; // Импорт хука useEffect
+
 import "../styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 
@@ -42,8 +44,20 @@ const wagmiClient = createClient({
 	provider,
 });
 
-export { WagmiConfig, RainbowKitProvider };
+// Функция для вызова смарт-контракта
+const callSmartContract = async () => {
+  // Выполните логику вызова контракта здесь
+  // Например, вызовите определенную функцию на контракте 0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E
+};
+
 function MyApp({ Component, pageProps }) {
+	// Используем хук useEffect для вызова смарт-контракта после успешного подключения
+	useEffect(() => {
+		if (wagmiClient.isConnected()) {
+			callSmartContract(); // Вызов функции смарт-контракта после успешного подключения
+		}
+	}, [wagmiClient]); // Массив зависимостей для обеспечения выполнения этого эффекта только при изменении wagmiClient
+
 	return (
 		<WagmiConfig client={wagmiClient}>
 			<RainbowKitProvider
@@ -59,4 +73,5 @@ function MyApp({ Component, pageProps }) {
 	);
 }
 
+export { WagmiConfig, RainbowKitProvider };
 export default MyApp;
