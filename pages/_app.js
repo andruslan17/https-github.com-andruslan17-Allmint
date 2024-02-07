@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import "../styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 
