@@ -9,7 +9,6 @@ import { alchemyProvider } from "wagmi/providers/alchemy";
 import { infuraProvider } from "wagmi/providers/infura"; // добавлено
 import MainLayout from "../layout/mainLayout";
 
-// Укажите ABI контракта
 const abi = [
 	{
 		"inputs": [],
