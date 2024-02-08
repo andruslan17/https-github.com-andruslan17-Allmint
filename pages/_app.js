@@ -6,7 +6,8 @@ import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { polygon } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
-import { infuraProvider } from "wagmi/providers/infura"; // добавлено
+import { infuraProvider } from "wagmi/providers/infura"; 
+
 import MainLayout from "../layout/mainLayout";
 
 const abi = [
@@ -431,13 +432,20 @@ const { chains, provider } = configureChains(
     [polygon],
     [
         alchemyProvider({ apiKey: alchemyURL }),
-        infuraProvider({ projectId: infuraAPIKey }) // добавлено
+        infuraProvider({ projectId: infuraAPIKey }) 
     ]
 );
 
-// Создание клиента Wagmi
+// Получение списка доступных кошельков
+const { connectors } = getDefaultWallets({
+    appName: "My Alchemy DApp",
+    chains,
+});
+
+// Создание клиента Wagmi с подключенными кошельками
 const wagmiClient = createClient({
     autoConnect: true,
+    connectors,
     provider,
 });
 
