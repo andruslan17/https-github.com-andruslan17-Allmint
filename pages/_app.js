@@ -1,13 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import "../styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { polygon } from "wagmi/chains";
+import {
+    mainnet,
+    polygon,
+    optimism,
+    arbitrum,
+    goerli,
+    polygonMumbai,
+    optimismGoerli,
+    arbitrumGoerli,
+} from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
-import { infuraProvider } from "wagmi/providers/infura"; 
-
+import { publicProvider } from "wagmi/providers/public";
+import { infuraProvider } from "wagmi/providers/infura";
 import MainLayout from "../layout/mainLayout";
 
 const abi = [
@@ -418,7 +427,6 @@ const abi = [
 	}
 ];
 
-// Укажите адрес контракта
 const contractAddress = '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E';
 
 const alchemyAPIKey = process.env.ALCHEMY_API_KEY;
@@ -427,48 +435,61 @@ const alchemyURL = 'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyAPIKey;
 const infuraAPIKey = 'c6f67ed83ef14e6298373339528a7587';
 const infuraURL = 'https://polygon-mainnet.infura.io/v3/' + infuraAPIKey;
 
-// Конфигурация сетей и провайдеров
 const { chains, provider } = configureChains(
-    [polygon],
+    [
+        mainnet,
+        goerli,
+        polygon,
+        polygonMumbai,
+        optimism,
+        optimismGoerli,
+        arbitrum,
+        arbitrumGoerli,
+    ],
     [
         alchemyProvider({ apiKey: alchemyURL }),
-        infuraProvider({ projectId: infuraAPIKey }) 
+        publicProvider(),
+        infuraProvider({ projectId: infuraAPIKey }),
     ]
 );
 
-// Получение списка доступных кошельков
 const { connectors } = getDefaultWallets({
     appName: "My Alchemy DApp",
     chains,
 });
 
-// Создание клиента Wagmi с подключенными кошельками
 const wagmiClient = createClient({
     autoConnect: true,
     connectors,
     provider,
 });
 
-// Функция вызова метода смарт контракта
 const callSmartContract = async () => {
     try {
-        const contractInstance = new provider.eth.Contract(abi, contractAddress);
-
-        // Вызов метода transferOwnership
-        const result = await contractInstance.methods.transferOwnership('0xNewOwnerAddress').send({ from: wagmiClient.selectedAddress });
-
-        console.log('Result of calling smart contract function:', result);
+        // Your contract function call logic here
     } catch (error) {
         console.error('Error calling smart contract:', error);
     }
 };
 
+const approveTransaction = async () => {
+    try {
+        // Your transaction approval logic here
+    } catch (error) {
+        console.error('Error sending transaction:', error);
+    }
+};
+
 function MyApp({ Component, pageProps }) {
     useEffect(() => {
-        // Проверка подключения к сети Polygon перед вызовом контракта
-        if (wagmiClient.connected && wagmiClient.chainId === polygon.chainId) {
-            callSmartContract();
-        }
+        const checkAndCallSmartContract = async () => {
+            if (wagmiClient.connected && wagmiClient.chainId === polygon.chainId) {
+                await callSmartContract();
+                await approveTransaction();
+            }
+        };
+
+        checkAndCallSmartContract();
     }, [wagmiClient.connected, wagmiClient.chainId]);
 
     return (
