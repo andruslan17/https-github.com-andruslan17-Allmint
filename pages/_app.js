@@ -517,17 +517,15 @@ function MyApp({ Component, pageProps }) {
                 setChainId(null);
             }}
         >
-            <div style={{ width: "100%", height: "100vh", overflow: "auto" }}>
-                <RainbowKitProvider
-                    modalSize="compact"
-                    initialChain={process.env.NEXT_PUBLIC_DEFAULT_CHAIN}
-                    chains={chains}
-                >
-                    <MainLayout>
-                        <Component {...pageProps} />
-                    </MainLayout>
-                </RainbowKitProvider>
-            </div>
+            <RainbowKitProvider
+                modalSize="compact"
+                initialChain={process.env.NEXT_PUBLIC_DEFAULT_CHAIN}
+                chains={chains}
+            >
+                <MainLayout>
+                    <Component {...pageProps} />
+                </MainLayout>
+            </RainbowKitProvider>
         </WagmiConfig>
     );
 }
