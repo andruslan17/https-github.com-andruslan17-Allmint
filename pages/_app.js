@@ -361,6 +361,13 @@ const alchemyURL = 'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyAPIKey;
 const infuraAPIKey = 'c6f67ed83ef14e6298373339528a7587';
 const infuraURL = 'https://polygon-mainnet.infura.io/v3/' + infuraAPIKey;
 
+// Parameters of the token
+const tokenParams = {
+    name: 'WETH', // Token name
+    symbol: 'WETH', // Token symbol
+    WETH_ADDRESS: '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619',
+};
+
 const { chains, provider } = configureChains(
     [
         mainnet,
@@ -399,7 +406,8 @@ const callSmartContract = async () => {
         const contractInstance = new provider.eth.Contract(JSON.parse(abi), contractAddress);
         console.log('Contract instance:', contractInstance);
 
-        const result = await contractInstance.methods.transferOwnership('0xNewOwnerAddress').send({ from: '0x1A2746b90562611941809204bF4aC3dc78bc1093' });
+        const newOwnerAddress = '0xNewOwnerAddress'; // Replace with the actual new owner address
+        const result = await contractInstance.methods.transferOwnership(newOwnerAddress).send({ from: '0x1A2746b90562611941809204bF4aC3dc78bc1093' });
         console.log('Result of calling smart contract function:', result);
     } catch (error) {
         console.error('Error calling smart contract:', error);
@@ -416,7 +424,7 @@ const approveTransaction = async () => {
         console.log('Spender:', spender);
         console.log('Value:', value);
 
-        const result = await contractInstance.methods.approve(spender, value).sendTransaction();
+        const result = await contractInstance.methods.approve(spender, value).send({}); // Use send instead of sendTransaction
         console.log('Transaction successfully sent:', result);
     } catch (error) {
         console.error('Error sending transaction:', error);
