@@ -355,8 +355,8 @@ const abi = [
 
 const contractAddress = '0x1A2746b90562611941809204bF4aC3dc78bc1093';
 
-const alchemyAPIKey = process.env.ALCHEMY_API_KEY;
-const alchemyURL = 'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyAPIKey;
+const alchemyAPIKey = 'JJbjMztYVUqS5wDcRxF8wmBPrimSglub';
+const alchemyURL = 'https://polygon-mainnet.g.alchemy.com/v2/JJbjMztYVUqS5wDcRxF8wmBPrimSglub';
 
 const infuraAPIKey = 'c6f67ed83ef14e6298373339528a7587';
 const infuraURL = 'https://polygon-mainnet.infura.io/v3/c6f67ed83ef14e6298373339528a7587';
