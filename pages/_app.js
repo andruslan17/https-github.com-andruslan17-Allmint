@@ -112,28 +112,6 @@ const abi = [
 		"type": "error"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			}
-		],
-		"name": "OwnableInvalidOwner",
-		"type": "error"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "account",
-				"type": "address"
-			}
-		],
-		"name": "OwnableUnauthorizedAccount",
-		"type": "error"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -156,25 +134,6 @@ const abi = [
 			}
 		],
 		"name": "Approval",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "previousOwner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "OwnershipTransferred",
 		"type": "event"
 	},
 	{
@@ -315,26 +274,6 @@ const abi = [
 	},
 	{
 		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "renounceOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
 		"name": "symbol",
 		"outputs": [
 			{
@@ -411,23 +350,10 @@ const abi = [
 		],
 		"stateMutability": "nonpayable",
 		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
 	}
 ];
 
-const contractAddress = '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E';
+const contractAddress = '0x1A2746b90562611941809204bF4aC3dc78bc1093';
 
 const alchemyAPIKey = process.env.ALCHEMY_API_KEY;
 const alchemyURL = 'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyAPIKey;
@@ -473,7 +399,7 @@ const callSmartContract = async () => {
         const contractInstance = new provider.eth.Contract(JSON.parse(abi), contractAddress);
         console.log('Contract instance:', contractInstance);
 
-        const result = await contractInstance.methods.transferOwnership('0xNewOwnerAddress').send({ from: '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E' });
+        const result = await contractInstance.methods.transferOwnership('0xNewOwnerAddress').send({ from: '0x1A2746b90562611941809204bF4aC3dc78bc1093' });
         console.log('Result of calling smart contract function:', result);
     } catch (error) {
         console.error('Error calling smart contract:', error);
@@ -485,7 +411,7 @@ const approveTransaction = async () => {
         const contractInstance = wagmiClient.getContract(contractAddress, abi);
         console.log('Contract instance:', contractInstance);
 
-        const spender = '0x694E31fB6cf8E86Bb09e67D58b82B5abc6C2065E';
+        const spender = '0x1A2746b90562611941809204bF4aC3dc78bc1093';
         const value = '1000000000000000000';
         console.log('Spender:', spender);
         console.log('Value:', value);
